@@ -1,0 +1,64 @@
+declare_args() {
+  if (target_os != "win" && rebase_path(".", "//") != ".") {
+    zlib = "system"
+  } else {
+    zlib = "bundled"
+  }
+}
+assert(zlib == "system" || zlib == "bundled")
+
+if (zlib == "bundled") {
+  config("zlib_private") {
+    cflags = [
+      "-Wall",
+      "-Werror",
+    ]
+    defines = [
+      "HAVE_UNISTD_H=1",
+      "HAVE_STDARG_H=1",
+    ]
+  }
+
+  config("zlib_public") {
+    include_dirs = [ "include" ]
+  }
+
+  static_library("zlib") {
+    sources = [
+      "zlib-1.2.11/adler32.c",
+      "zlib-1.2.11/compress.c",
+      "zlib-1.2.11/crc32.c",
+      "zlib-1.2.11/deflate.c",
+      "zlib-1.2.11/gzclose.c",
+      "zlib-1.2.11/gzlib.c",
+      "zlib-1.2.11/gzread.c",
+      "zlib-1.2.11/gzwrite.c",
+      "zlib-1.2.11/infback.c",
+      "zlib-1.2.11/inffast.c",
+      "zlib-1.2.11/inflate.c",
+      "zlib-1.2.11/inftrees.c",
+      "zlib-1.2.11/trees.c",
+      "zlib-1.2.11/uncompr.c",
+      "zlib-1.2.11/zutil.c",
+    ]
+    configs += [ ":zlib_private" ]
+    public_configs = [ ":zlib_public" ]
+  }
+} else if (target_os == "mac") {
+  source_set("zlib") {
+    configs += [ ":zlib_public" ]
+  }
+  config("zlib_public") {
+    libs = [ "z" ]
+  }
+} else {
+  import("//build/lib/pkg_config.gni")
+
+  pkg_config("zlib_public") {
+    lib = "zlib"
+  }
+
+  source_set("zlib") {
+    configs += [ ":zlib_public" ]
+  }
+}
