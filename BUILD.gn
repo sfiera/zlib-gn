@@ -9,14 +9,16 @@ assert(zlib == "system" || zlib == "bundled")
 
 if (zlib == "bundled") {
   config("zlib_private") {
-    cflags = [
-      "-Wall",
-      "-Werror",
-    ]
     defines = [
-      "HAVE_UNISTD_H=1",
       "HAVE_STDARG_H=1",
     ]
+    if (current_toolchain != "//build/lib/win:msvc") {
+      cflags = [
+        "-Wall",
+        "-Werror",
+      ]
+      defines += [ "HAVE_UNISTD_H=1" ]
+    }
   }
 
   config("zlib_public") {
