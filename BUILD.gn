@@ -1,5 +1,5 @@
 declare_args() {
-  if (target_os != "win" && rebase_path(".", "//") != ".") {
+  if (target_os == "linux" && rebase_path(".", "//") != ".") {
     zlib = "system"
   } else {
     zlib = "bundled"
@@ -9,9 +9,7 @@ assert(zlib == "system" || zlib == "bundled")
 
 if (zlib == "bundled") {
   config("zlib_private") {
-    defines = [
-      "HAVE_STDARG_H=1",
-    ]
+    defines = [ "HAVE_STDARG_H=1" ]
     if (current_toolchain != "//build/lib/win:msvc") {
       cflags = [
         "-Wall",
